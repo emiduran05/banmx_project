@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import { db, auth } from '../firebaseConn/config';
 
 import { initializeApp } from 'firebase/app';
 import {
@@ -15,21 +16,11 @@ import {
     sendPasswordResetEmail
 } from 'firebase/auth';
 
+import { collection, getFirestore, addDoc } from "firebase/firestore";
 
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCvdWPNzYrILu7QQ0-2UrcBNsypCiGBycA",
-    authDomain: "banmx-app.firebaseapp.com",
-    projectId: "banmx-app",
-    storageBucket: "banmx-app.firebasestorage.app",
-    messagingSenderId: "1085011434157",
-    appId: "1:1085011434157:web:ade7d8eeeb865875ae8424",
-    measurementId: "G-4G2NW5DZDX"
-};
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
 
 //inicializa base de datod
 
@@ -39,28 +30,35 @@ export default function Register({navigation}: any) {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const handleForm = () => {
 
-        if (!email || !password) {
-            alert("llena todos los campos")
+        if (!email || !password || !name) {
+            setError("por favor, llena todos los campos")
         } else {
             setLoading(true);
             createUserWithEmailAndPassword(auth, email, password)
                 .then(userCredential => {
-                    console.log("USUARIO REGISTRADO " + userCredential.user.email);
-                    navigation.navigate('Home');
+                    setUserRole(userCredential.user.email, userCredential.user.uid, name);
+                    console.log("USUARIO REGISTRADO " + userCredential.user.email + " UID: " + userCredential.user.uid);
+                    navigation.navigate('login', {data: true});
 
 
                 })
                 .catch(error => {
                     console.log("ERROR " + error.message + " " + error.doe);
-                    alert("ERROR: ha ocurrido un error al intentar registrar al usuario")
+                    setError("ERROR: ha ocurrido un error al intentar registrar al usuario")
                     setLoading(false);
 
                     if (error.code == "auth/missing-password") {
                         alert("PONLE PASSWORD");
+                    }
+
+                    if(error.code == "auth/weak-password"){
+                        setError("La contraseña debe de tener al menos 6 caracteres")
                     }
                 });
 
@@ -69,6 +67,29 @@ export default function Register({navigation}: any) {
     }
 
 
+    async function setUserRole(userEmail : any, userUid : any, userName : any){
+        try {
+            const docRef = await addDoc(collection(db, "userRoles"),{
+                email: userEmail,
+                name: userName,
+                role: "customer",
+                uid: userUid,
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    function error_quit(){
+        if(error){
+            setTimeout(() => {
+                setError("");
+            }, 3000)
+        }
+    }
+
+    error_quit();
+
     return (
         <View style={styles.main}>
             <View style={styles.r_container}>
@@ -76,7 +97,7 @@ export default function Register({navigation}: any) {
                 <View style={styles.form}>
                     <Text style={{ marginLeft: 5 }}>Nombre completo:</Text>
                     <TextInput
-                        onChange={() => { }}
+                        onChangeText={ text => {setName(text) }}
                         style={styles.input}
                     />
                 </View>
@@ -92,6 +113,7 @@ export default function Register({navigation}: any) {
                     <Text style={{ marginLeft: 5 }}>Contraseña</Text>
                     <TextInput
                         onChangeText={text => { setPassword(text) }}
+                        secureTextEntry={true}
                         style={styles.input}
                     />
                 </View>
@@ -109,7 +131,7 @@ export default function Register({navigation}: any) {
                 <View style={{ display: "flex", flexDirection: "row", minWidth: "100%", justifyContent: "space-around" }}>
                     <Text>¿Ya tienes cuenta?</Text>
                     <Pressable
-                    onPress={() => {navigation.navigate("login")}}
+                    onPress={() => {navigation.navigate("login", {data: false})}}
                     >
                         <Text style={{ color: "#00f" }}>Iniciar esión</Text>
                     </Pressable>
@@ -117,6 +139,8 @@ export default function Register({navigation}: any) {
 
 
             </View>
+
+            <Text style={{textAlign: "center", padding: error ? 5 : 0, backgroundColor: "#f00", color: "#fff"}}>{error ? error : ""}</Text>
         </View>
     )
 }
@@ -124,6 +148,7 @@ export default function Register({navigation}: any) {
 const styles = StyleSheet.create({
     main: {
         flex: 1,
+        gap: 15,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 30,

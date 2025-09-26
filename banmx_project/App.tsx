@@ -27,7 +27,7 @@ function HomeScreen({ navigation }: any) {
             pressed && styles.buttonPressed
           ]}
 
-          onPress={() => {navigation.navigate("login")}}
+          onPress={() => {navigation.navigate("login", {data: false})}}
         >
           <Text style={styles.buttonText}>Iniciar Sesión</Text>
         </Pressable>
