@@ -14,21 +14,32 @@ import {
     sendPasswordResetEmail
 } from 'firebase/auth';
 
-import { collection, getFirestore, addDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  onSnapshot,
+  QuerySnapshot
 
+} from 'firebase/firestore';
 
 export default function Login({navigation, route}: any){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [role, setRole] = useState("");
+
 
     const handleLogin = () => {
         setLoading(true);
         signInWithEmailAndPassword(auth, email, password)
           .then(userCredential => {
-            console.log("LOGGEADO: " + userCredential.user.uid)
-            navigation.navigate("Home");
+            console.log("LOGGEADO: " + userCredential.user.uid);
+            getUserRole(userCredential.user.uid);
           })
           .catch(error => {
             setLoading(false);
@@ -37,6 +48,23 @@ export default function Login({navigation, route}: any){
           
         
         }
+
+
+        
+            async function getUserRole(userUid : string){
+                const userRoles = collection(db, "userRoles");
+                const userQuery = query(userRoles, where("uid", "==", userUid) );
+                const querySnapshot = await getDocs(userQuery);
+        
+                querySnapshot.forEach(currentDoc => {
+                    
+                    currentDoc.data().role == "admin" ? navigation.navigate("mainAdmin", {data: userUid, name: currentDoc.data().name}) : navigation.navigate("mainUser");
+                })
+        
+                
+        
+            }
+        
 
     return(
         <View style={styles.main}>
