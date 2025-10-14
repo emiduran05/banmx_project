@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Button, Image, Text, ActivityIndicator, TextInput, Pressable } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { collection, getFirestore, addDoc } from "firebase/firestore";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 import { db } from "../firebaseConn/config";
 
@@ -95,6 +96,18 @@ async function setProduct(productTitle : any, productPrice : any, productImage :
 
   return (
     <View style={{ padding: 30, flex: 1, justifyContent: "center", gap: 10, }}>
+      <View style={{position: "absolute", top: 60, left: 30, }}>
+        <Pressable style={{display: "flex", flexDirection: "row", gap: 10}} onPress={() => {
+          navigation.navigate("mainAdmin", {data: "userUid", name: "name"}) 
+
+        }}>
+
+          <FontAwesome5 name="arrow-left" size={24} color="black" />
+        <Text style={{fontSize: 18, fontWeight: 600}}>Regresar</Text>
+      
+        </Pressable>
+        </View>
+
       <Text style={{textAlign: "center", fontWeight: 600}}>Agregar Producto:</Text>
       <Text>Titulo:</Text>  
       <TextInput

@@ -1,4 +1,7 @@
 import { StyleSheet, Text, View, Image, Pressable, TextInput, Button } from 'react-native';
+import { Platform } from 'react-native';
+
+
 import { useState } from 'react';
 
 import { db, auth } from '../firebaseConn/config';
@@ -33,12 +36,12 @@ export default function Login({navigation, route}: any){
     const [error, setError] = useState("");
     const [role, setRole] = useState("");
 
+    
 
     const handleLogin = () => {
         setLoading(true);
         signInWithEmailAndPassword(auth, email, password)
           .then(userCredential => {
-            console.log("LOGGEADO: " + userCredential.user.uid);
             getUserRole(userCredential.user.uid);
           })
           .catch(error => {
@@ -59,15 +62,23 @@ export default function Login({navigation, route}: any){
                 querySnapshot.forEach(currentDoc => {
                     
                     currentDoc.data().role == "admin" ? navigation.navigate("mainAdmin", {data: userUid, name: currentDoc.data().name}) : navigation.navigate("mainUser");
+
                 })
         
                 
         
             }
+
+
+            
+
         
 
     return(
         <View style={styles.main}>
+
+            <Text>{Platform.Version < "23" ? "se necesita version mayor para entrar a la app" : ""}</Text>
+           
             <Text style={{padding: route.params.data? 8 : 0, backgroundColor: "#ad0", color: "#fff", fontWeight: 600}}>{route.params.data ? "¡Ahora puedes iniciar sesión! " : ""}</Text>
                     <View style={styles.r_container}>
                         <Text style={{ textAlign: "center", fontSize: 20, fontWeight: 600 }}>Iniciar Sesión</Text>
@@ -145,8 +156,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         gap: 20,
         justifyContent: "center",
-        borderWidth: 2,
-        borderRadius: 25,
+        borderWidth: 1,
         borderColor: "#FD8721",
 
 
@@ -157,7 +167,6 @@ const styles = StyleSheet.create({
 
 
     input: {
-        borderRadius: 20,
         backgroundColor: "#f0f0f0ff",
         minWidth: '100%',
         padding: 10,
@@ -166,7 +175,6 @@ const styles = StyleSheet.create({
     button: {
         padding: 10,
         backgroundColor: "#FD8721",
-        borderRadius: 15,
         color: "#fff",
         textAlign: "center",
     },

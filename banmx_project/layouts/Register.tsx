@@ -43,7 +43,6 @@ export default function Register({navigation}: any) {
             createUserWithEmailAndPassword(auth, email, password)
                 .then(userCredential => {
                     setUserRole(userCredential.user.email, userCredential.user.uid, name);
-                    console.log("USUARIO REGISTRADO " + userCredential.user.email + " UID: " + userCredential.user.uid);
                     navigation.navigate('login', {data: true});
 
 
@@ -54,11 +53,15 @@ export default function Register({navigation}: any) {
                     setLoading(false);
 
                     if (error.code == "auth/missing-password") {
-                        alert("PONLE PASSWORD");
+                        setError("contraseña requerida");
                     }
 
                     if(error.code == "auth/weak-password"){
-                        setError("La contraseña debe de tener al menos 6 caracteres")
+                        setError("La contraseña debe de tener al menos 6 caracteres y un simbolo especial (*,/,@)")
+                    }
+
+                    if(error.code == "auth/invalid-email"){
+                        setError("Correo electrónico invalido")
                     }
                 });
 
@@ -173,8 +176,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         gap: 20,
         justifyContent: "center",
-        borderWidth: 2,
-        borderRadius: 25,
+        borderWidth: 1,
         borderColor: "#FD8721",
 
 
@@ -185,7 +187,6 @@ const styles = StyleSheet.create({
 
 
     input: {
-        borderRadius: 20,
         backgroundColor: "#f0f0f0ff",
         minWidth: '100%',
         padding: 10,
@@ -194,7 +195,6 @@ const styles = StyleSheet.create({
     button: {
         padding: 10,
         backgroundColor: "#FD8721",
-        borderRadius: 15,
         color: "#fff",
         textAlign: "center",
     },
