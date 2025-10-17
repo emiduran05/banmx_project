@@ -12,6 +12,7 @@ import Donaciones from './userView/Donaciones';
 import Catalogo from './userView/catalogo';
 import PayMethods from './userView/payMethods';
 import addPayment from './userView/addPayment';
+import PaymentDetails from './userView/paymentDetails';
 const Stack = createNativeStackNavigator();
 
 // Tipado de rutas
@@ -81,6 +82,7 @@ export default function App() {
         <Stack.Screen name="Catalogo" component={Catalogo}/>
         <Stack.Screen name="payMethods" component={PayMethods}/>
         <Stack.Screen name="addPayment" component={addPayment} />
+        <Stack.Screen name="paymentDetails" component={PaymentDetails} />
       </Stack.Navigator>
     </NavigationContainer>
   );

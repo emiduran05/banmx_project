@@ -8,6 +8,7 @@ import {
     Animated,
     Switch,
     TextInput,
+    Pressable,
 } from "react-native";
 import { getDocs, collection } from "firebase/firestore";
 import Header from "../components/header";
@@ -20,7 +21,9 @@ export default function Catalogo({ navigation }: any) {
     const user = auth.currentUser;
     const [menu, setMenu] = useState(false);
     const [data, setData] = useState([]);
-    const [selected, setSelected] = useState<{ id: string; quantity: number; price: number }[]>([]);
+    const [selected, setSelected] = useState<
+        { id: string; title: string; image: string; quantity: number; price: number }[]
+    >([]);
     const [total, setTotal] = useState(0);
     const slideAnim = useRef(new Animated.Value(-300)).current;
     const toggleMenu = () => setMenu(!menu);
@@ -54,22 +57,33 @@ export default function Catalogo({ navigation }: any) {
             setTotal(prev => prev - existing.price * existing.quantity);
         } else {
             // agregar producto con cantidad inicial 1
-            setSelected(prev => [...prev, { id: item.id, quantity: 1, price: Number(item.price) }]);
+            setSelected(prev => [
+                ...prev,
+                {
+                    id: item.id,
+                    title: item.title,
+                    image: item.image,
+                    quantity: 1,
+                    price: Number(item.price),
+                },
+            ]);
             setTotal(prev => prev + Number(item.price));
         }
     };
 
     // Actualizar cantidad
     const updateQuantity = (id: string, quantity: number) => {
-        setSelected(prev => prev.map(p => {
-            if (p.id === id) {
-                const oldTotal = p.price * p.quantity;
-                const newTotal = p.price * quantity;
-                setTotal(t => t - oldTotal + newTotal);
-                return { ...p, quantity };
-            }
-            return p;
-        }));
+        setSelected(prev =>
+            prev.map(p => {
+                if (p.id === id) {
+                    const oldTotal = p.price * p.quantity;
+                    const newTotal = p.price * quantity;
+                    setTotal(t => t - oldTotal + newTotal);
+                    return { ...p, quantity };
+                }
+                return p;
+            })
+        );
     };
 
     return (
@@ -130,9 +144,24 @@ export default function Catalogo({ navigation }: any) {
                 </Text>
 
                 {selected.length > 0 && (
-                    <Text style={{ textAlign: "center", padding: 10, backgroundColor: "#FD8721", color: "#fff", fontWeight: 600 }}>
-                        ir a pagar
-                    </Text>
+                    <Pressable
+                        style={{ backgroundColor: "#FD8721" }}
+                        onPress={() => {
+                            navigation.navigate("paymentDetails", { data: selected });
+                        }}
+                    >
+                        <Text
+                            style={{
+                                textAlign: "center",
+                                padding: 10,
+                                backgroundColor: "#FD8721",
+                                color: "#fff",
+                                fontWeight: 600,
+                            }}
+                        >
+                            Ir a pagar
+                        </Text>
+                    </Pressable>
                 )}
             </View>
         </SafeAreaView>
