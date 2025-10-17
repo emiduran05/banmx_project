@@ -4,13 +4,13 @@ import { useEffect, useState, useRef } from 'react';
 import { db } from '../firebaseConn/config';
 import { collection, getDocs } from 'firebase/firestore';
 import Header from '../components/header';
+import { auth } from '../firebaseConn/config';
 
-export default function MainAdmin({ navigation, route }: any) {
+export default function MainAdmin({ navigation }: any) {
+    const user = auth.currentUser;
     const [menu, setMenu] = useState(false);
-    const slideAnim = useRef(new Animated.Value(-300)).current; // posición inicial fuera de pantalla
+    const slideAnim = useRef(new Animated.Value(-300)).current;
 
-    const name = route.params.name;
-    const uid = route.params.data;
     const [data, setData] = useState([]);
 
     const toggleMenu = () => {
@@ -46,9 +46,11 @@ export default function MainAdmin({ navigation, route }: any) {
                 <Header onMenuPress={toggleMenu} />
 
                 <View style={styles.admin}>
-                    <Text style={{ textAlign: "center", fontWeight: '600', fontSize: 20 }}>Mi catálogo:</Text>
+                    <Text style={styles.title}>Mi catálogo:</Text>
 
                     <FlatList
+                        style={{ flex: 1, paddingBottom: 30 }}
+                        contentContainerStyle={{ paddingBottom: 120 }}
                         data={data}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
@@ -63,15 +65,10 @@ export default function MainAdmin({ navigation, route }: any) {
                     />
                 </View>
 
-                <Pressable
-                    style={{ position: "absolute", bottom: 70, right: 0, left: 0 }}
-                    onPress={() => navigation.navigate("addProduct")}
-                >
-                    <Text style={{ textAlign: "center", padding: 8, backgroundColor: "#FD8721", width: "90%", margin: "auto", color: "#fff" }}>
-                        + Añadir Producto
-                    </Text>
-                </Pressable>
+
             </View>
+
+           
 
             {/* Menú lateral animado */}
             <Animated.View
@@ -81,18 +78,40 @@ export default function MainAdmin({ navigation, route }: any) {
                 ]}
             >
                 <SafeAreaView>
-                    <Text style={{ padding: 20, fontSize: 18, fontWeight: '700', color: '#fff' }}>Menú Principal</Text>
-                    <Pressable onPress={() => navigation.navigate("addProduct")}>
-                        <Text style={styles.sidebarItem}>Añadir producto</Text>
+                    <View style={styles.sidebarHeader}>
+                        <Image
+                            source={{ uri: "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg" }}
+                            style={{ width: 100, height: 100, borderRadius: 150 }}
+                        />
+                        <Text style={styles.sidebarGreeting}>Hola, {user?.email}</Text>
+                    </View>
+
+                    <Pressable onPress={() => navigation.navigate("mainAdmin")}>
+                        <Text style={styles.sidebarItem}>Mi catálogo</Text>
                     </Pressable>
-                    <Pressable onPress={() => navigation.navigate("profile")}>
-                        <Text style={styles.sidebarItem}>Mi perfil</Text>
+
+                    <Pressable onPress={() => navigation.navigate("adminInfo")}>
+                        <Text style={styles.sidebarItem}>Información de administrador</Text>
                     </Pressable>
+
                     <Pressable onPress={toggleMenu}>
-                        <Text style={styles.sidebarItem}>Cerrar menú</Text>
+                        <Text style={styles.sidebarItem}>Historial de ventas</Text>
+                    </Pressable>
+
+                    <Pressable onPress={toggleMenu}>
+                        <Text style={styles.sidebarItem}>Blog</Text>
                     </Pressable>
                 </SafeAreaView>
             </Animated.View>
+
+
+            <Pressable
+    onPress={() => navigation.navigate("addProduct")}
+    style={styles.floatingButton}
+>
+    <Text style={styles.floatingButtonText}>+ Añadir Producto</Text>
+</Pressable>
+
         </SafeAreaView>
     );
 }
@@ -106,25 +125,16 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 20,
     },
-    header: {
-        padding: 20,
-        backgroundColor: '#fff',
-        flexDirection: "row",
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.5,
-    },
-    headerText: {
-        fontWeight: 'bold',
-        fontSize: 18,
-    },
     admin: {
-        padding: 35,
+        flex: 1,
+        paddingHorizontal: 35,
         gap: 15,
+    },
+    title: {
+        textAlign: "center",
+        fontWeight: '600',
+        fontSize: 20,
+        marginBottom: 0,
     },
     admin_products: {
         flexDirection: "row",
@@ -137,6 +147,43 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
         marginTop: 10,
+        borderRadius: 10,
+    },
+
+    floatingButton: {
+    position: "absolute",
+    bottom: 90, // deja espacio sobre la barra de navegación
+    right: 20,
+    backgroundColor: "#FD8721",
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    elevation: 6,
+    zIndex: 1000,
+},
+floatingButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+},
+
+    addButton: {
+        position: "absolute",
+        bottom: 70,
+        width: "100%",
+        right: 0,
+        left: 0,
+        alignItems: "center",
+    },
+    addButtonText: {
+        textAlign: "center",
+        padding: 10,
+        backgroundColor: "#FD8721",
+        width: "90%",
+        borderRadius: 8,
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: '600',
     },
     sidebar: {
         position: "absolute",
@@ -149,11 +196,24 @@ const styles = StyleSheet.create({
         elevation: 10,
         paddingTop: 40,
     },
+    sidebarHeader: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    sidebarGreeting: {
+        padding: 20,
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#000',
+        textAlign: "center",
+    },
     sidebarItem: {
         color: '#fff',
         paddingVertical: 12,
         paddingHorizontal: 20,
-        fontSize: 16,
-        fontWeight: '500',
+        marginTop: 10,
+        fontSize: 18,
+        fontWeight: '700',
     },
 });

@@ -98,7 +98,7 @@ async function setProduct(productTitle : any, productPrice : any, productImage :
     <View style={{ padding: 30, flex: 1, justifyContent: "center", gap: 10, }}>
       <View style={{position: "absolute", top: 60, left: 30, }}>
         <Pressable style={{display: "flex", flexDirection: "row", gap: 10}} onPress={() => {
-          navigation.navigate("mainAdmin", {data: "userUid", name: "name"}) 
+          navigation.goBack()
 
         }}>
 

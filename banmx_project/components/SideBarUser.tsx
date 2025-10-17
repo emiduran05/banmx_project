@@ -21,7 +21,7 @@ interface SidebarProps {
   toggleMenu: () => void;
 }
 
-export default function Sidebar({ navigation, slideAnim, toggleMenu }: SidebarProps) {
+export default function SidebarUser({ navigation, slideAnim, toggleMenu }: SidebarProps) {
   const user = auth.currentUser;
   const [role, setRole] = useState("");
   async function getUserRole(userUid: string) {
@@ -57,20 +57,20 @@ return (
           <Text style={styles.userText}>Hola, {user?.email || "Invitado"}</Text>
         </View>
 
-        <Pressable onPress={() => navigation.navigate("mainAdmin")}>
-          <Text style={styles.sidebarItem}>Mi catálogo</Text>
+        <Pressable onPress={() => navigation.navigate("mainUser")}>
+          <Text style={styles.sidebarItem}>Perfil</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate("adminInfo")}>
-          <Text style={styles.sidebarItem}>Información de administrador</Text>
+        <Pressable onPress={() => navigation.navigate("Catalogo")}>
+          <Text style={styles.sidebarItem}>Catálogo</Text>
         </Pressable>
 
-        <Pressable onPress={toggleMenu}>
-          <Text style={styles.sidebarItem}>Historial de ventas</Text>
+        <Pressable onPress={() => {navigation.navigate("")}}>
+          <Text style={styles.sidebarItem}>Más de Banco de alimentos</Text>
         </Pressable>
 
-        <Pressable onPress={toggleMenu}>
-          <Text style={styles.sidebarItem}>Blog</Text>
+        <Pressable onPress={() => {navigation.navigate("Donaciones")}}>
+          <Text style={styles.sidebarItem}>Historial de donaciones</Text>
         </Pressable>
       </SafeAreaView>
     </Animated.View>

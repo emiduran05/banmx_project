@@ -31,7 +31,8 @@ import {
 
 export default function Login({navigation, route}: any){
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("")
+    const [password, setPassword] = useState("");
+    const [donationArray, setDonationArray] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [role, setRole] = useState("");
@@ -61,7 +62,7 @@ export default function Login({navigation, route}: any){
         
                 querySnapshot.forEach(currentDoc => {
                     
-                    currentDoc.data().role == "admin" ? navigation.navigate("mainAdmin", {data: userUid, name: currentDoc.data().name}) : navigation.navigate("mainUser");
+                    currentDoc.data().role == "admin" ? navigation.navigate("mainAdmin") : navigation.navigate("mainUser");
 
                 })
         

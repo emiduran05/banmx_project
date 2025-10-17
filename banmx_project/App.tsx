@@ -7,7 +7,11 @@ import Login from './layouts/Login';
 import MainAdmin from './adminViews/mainAdmin';
 import AddProduct from './adminViews/AddProduct';
 import MainUser from './userView/mainUser';
-
+import AdminInfo from './adminViews/AdminInfo';
+import Donaciones from './userView/Donaciones';
+import Catalogo from './userView/catalogo';
+import PayMethods from './userView/payMethods';
+import addPayment from './userView/addPayment';
 const Stack = createNativeStackNavigator();
 
 // Tipado de rutas
@@ -72,6 +76,11 @@ export default function App() {
         <Stack.Screen name="mainAdmin" component={MainAdmin} />
         <Stack.Screen name="addProduct" component={AddProduct} />
         <Stack.Screen name="mainUser" component={MainUser} />
+        <Stack.Screen name="adminInfo" component={AdminInfo} />
+        <Stack.Screen name="Donaciones" component={Donaciones} />
+        <Stack.Screen name="Catalogo" component={Catalogo}/>
+        <Stack.Screen name="payMethods" component={PayMethods}/>
+        <Stack.Screen name="addPayment" component={addPayment} />
       </Stack.Navigator>
     </NavigationContainer>
   );
