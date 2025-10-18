@@ -85,7 +85,7 @@ export default function PaymentDetails({ navigation, route }: any) {
                 <Text style={{ textAlign: "center", fontSize: 18, fontWeight: 600 }}>Detalles finales</Text>
                 <FlatList
                     data={route.params.data}
-                    style={{ maxHeight: 200 }}
+                    style={{maxHeight: 200}}
                     keyExtractor={(_, i) => i.toString()}
                     contentContainerStyle={styles.main}
                     renderItem={({ item }) => (
@@ -123,7 +123,7 @@ export default function PaymentDetails({ navigation, route }: any) {
                     data={data}
                     keyExtractor={(_, i) => i.toString()}
                     contentContainerStyle={styles.main}
-                    style={{ maxHeight: 300 }}
+                    style={{ maxHeight: 200}}
 
                     renderItem={({ item }) => (
                         <View style={styles.methods}>
@@ -175,7 +175,6 @@ export default function PaymentDetails({ navigation, route }: any) {
 const styles = StyleSheet.create({
     main: {
         padding: 15,
-        flex: 1,
         gap: 10
     },
 
