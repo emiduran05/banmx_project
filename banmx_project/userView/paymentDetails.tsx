@@ -1,4 +1,3 @@
-
 import SidebarUser from "../components/SideBarUser";
 import {
     StyleSheet,
@@ -6,56 +5,42 @@ import {
     View,
     Image,
     Pressable,
-    TextInput,
-    Button,
     FlatList,
-    SafeAreaViewBase,
     Animated,
-    ScrollView
 } from "react-native";
 import {
-    getFirestore,
     collection,
-    addDoc,
     getDocs,
     query,
     where,
-    onSnapshot,
-    QuerySnapshot
-
-} from 'firebase/firestore';
+} from "firebase/firestore";
 import Header from "../components/header";
-import Sidebar from "../components/Sidebar";
 import { useState, useEffect, useRef } from "react";
-import { auth } from "../firebaseConn/config";
+import { auth, db } from "../firebaseConn/config";
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-
-import { db } from "../firebaseConn/config";
 
 export default function PaymentDetails({ navigation, route }: any) {
     const user = auth.currentUser;
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const [menu, setMenu] = useState(false);
+    const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const slideAnim = useRef(new Animated.Value(-300)).current;
     const toggleMenu = () => setMenu(!menu);
+    const si = route.params.data;
 
-
-
+    // 🔹 Obtener métodos de pago
     async function getPayInfo(userUid: string) {
         const payInfos = collection(db, "payment_methods");
-        const payInfosQuery = query(payInfos, where("uid", "==", userUid))
+        const payInfosQuery = query(payInfos, where("uid", "==", userUid));
         const querySnapshot = await getDocs(payInfosQuery);
         const dataArray = querySnapshot.docs.map(doc => ({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
         }));
-        setLoading(false);
         setData(dataArray);
-
+        setLoading(false);
     }
-
 
     useEffect(() => {
         Animated.timing(slideAnim, {
@@ -63,14 +48,9 @@ export default function PaymentDetails({ navigation, route }: any) {
             duration: 300,
             useNativeDriver: true,
         }).start();
-        getPayInfo(user.uid)
 
-        // console.log(route.params.data)
-
-
+        if (user?.uid) getPayInfo(user.uid);
     }, [menu]);
-
-
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -82,10 +62,14 @@ export default function PaymentDetails({ navigation, route }: any) {
             />
 
             <View style={styles.main}>
-                <Text style={{ textAlign: "center", fontSize: 18, fontWeight: 600 }}>Detalles finales</Text>
+                <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600" }}>
+                    Detalles finales
+                </Text>
+
+                {/* 🛒 Lista de productos */}
                 <FlatList
-                    data={route.params.data}
-                    style={{maxHeight: 200}}
+                    data={si}
+                    style={{ maxHeight: 200 }}
                     keyExtractor={(_, i) => i.toString()}
                     contentContainerStyle={styles.main}
                     renderItem={({ item }) => (
@@ -98,86 +82,120 @@ export default function PaymentDetails({ navigation, route }: any) {
                                 }}
                                 style={{ height: 50, width: 50, borderRadius: 5 }}
                             />
-
                             <View>
                                 <Text style={styles.bold}>Producto:</Text>
-                                <Text >{item.title || "Bolsa de frijoles"}</Text>
+                                <Text>{item.title}</Text>
                             </View>
-
                             <View>
                                 <Text style={styles.bold}>Precio:</Text>
-                                <Text>${item.price || 299} mxn</Text>
+                                <Text>${item.price} mxn</Text>
                             </View>
-
                             <View>
                                 <Text style={styles.bold}>Cantidad:</Text>
-                                <Text style={{ textAlign: "center" }}>{item.quantity || "11/11/2025"}</Text>
+                                <Text style={{ textAlign: "center" }}>{item.quantity}</Text>
                             </View>
                         </View>
                     )}
                 />
 
-                <Text style={{ textAlign: "center", fontSize: 18, fontWeight: 600 }}>Escoger metodo de pago: </Text>
+                <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600" }}>
+                    Escoger método de pago:
+                </Text>
 
-                <FlatList
-                    data={data}
-                    keyExtractor={(_, i) => i.toString()}
-                    contentContainerStyle={styles.main}
-                    style={{ maxHeight: 200}}
+                {/* 💳 Lista de métodos */}
+                {loading ? (
+                    <Image
+                        source={{
+                            uri: "https://cdn.pixabay.com/animation/2023/08/11/21/18/21-18-05-265_512.gif",
+                        }}
+                        style={{ height: 70, width: 70, alignSelf: "center" }}
+                    />
+                ) : data.length === 0 ? (
+                    <Text style={{ textAlign: "center" }}>
+                        No tienes métodos de pago agregados
+                    </Text>
+                ) : (
+                    <FlatList
+                        data={data}
+                        keyExtractor={(item) => item.id}
+                        style={{ maxHeight: 200 }}
+                        renderItem={({ item }) => (
+                            <Pressable
+                                style={[
+                                    styles.methods,
+                                    selectedMethod === item.id && {
+                                        borderColor: "#FD8721",
+                                        borderWidth: 2,
+                                    },
+                                ]}
+                                onPress={() => setSelectedMethod(item.id)}
+                            >
+                                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                    <View
+                                        style={[
+                                            styles.radio,
+                                            selectedMethod === item.id && styles.radioSelected,
+                                        ]}
+                                    />
+                                    <View style={{ marginLeft: 10 }}>
+                                        <Text style={styles.bold}>
+                                            Tarjeta: **{item.card_number.slice(-4)}
+                                        </Text>
+                                        <Text>Titular: {item.titular}</Text>
+                                        <Text>Expira: {item.exp_date}</Text>
+                                    </View>
+                                </View>
+                            </Pressable>
+                        )}
+                    />
+                )}
 
-                    renderItem={({ item }) => (
-                        <View style={styles.methods}>
-
-
-                            <View>
-                                <Text style={styles.bold}>Tarjeta con terminación: </Text>
-                                <Text>**{item.card_number.slice(-4) || "Bolsa de frijoles"}</Text>
-                            </View>
-
-                            <View>
-                                <Text style={styles.bold}>Exp date: </Text>
-                                <Text>{item.exp_date || 2}</Text>
-                            </View>
-
-                            <View>
-                                <Text style={styles.bold}>Titular:</Text>
-                                <Text>{item.titular || 2}</Text>
-                            </View>
-
-
-                        </View>
-                    )}
-                />
-
-                <Pressable style={styles.button}>
-                    <Text style={{textAlign: "center", color: "#fff"}}>Aggregar Método de pago</Text>
+                {/* ➕ Botón para agregar nuevo método */}
+                <Pressable
+                    style={styles.button}
+                    onPress={() => {
+                        navigation.navigate("addPayment", { origin: "details", data: si });
+                    }}
+                >
+                    <Text style={{ textAlign: "center", color: "#fff" }}>
+                        Agregar Método de pago
+                    </Text>
                 </Pressable>
 
-                <Pressable style={styles.button}>
-                    <Text style={{textAlign: "center", color: "#fff"}}>Donar</Text>
+                {/* 💰 Botón para proceder al pago */}
+                <Pressable
+                    style={[
+                        styles.button,
+                        {
+                            backgroundColor: selectedMethod ? "#28A745" : "#ccc",
+                        },
+                    ]}
+                    disabled={!selectedMethod}
+                    onPress={() => {
+                        if (!selectedMethod) {
+                            alert("Selecciona un método de pago primero");
+                            return;
+                        }
+
+                        const method = data.find((m: any) => m.id === selectedMethod);
+                        console.log("Procediendo al pago con:", method);
+
+                        // Aquí puedes implementar tu lógica de pago o redirección:
+                        // navigation.navigate("PaymentProcessing", { method, products: si });
+                    }}
+                >
+                    <Text style={{ textAlign: "center", color: "#fff" }}>Donar</Text>
                 </Pressable>
-
-
-
-
-
             </View>
-
-
-
-
-
         </SafeAreaView>
     );
-
 }
 
 const styles = StyleSheet.create({
     main: {
         padding: 15,
-        gap: 10
+        gap: 10,
     },
-
     last_moves: {
         backgroundColor: "#fff",
         marginBottom: 15,
@@ -186,32 +204,37 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-around",
         elevation: 2,
+        borderRadius: 8,
     },
-
     bold: {
-        fontWeight: 600,
+        fontWeight: "600",
     },
-
-
     methods: {
-
         backgroundColor: "#fff",
         padding: 10,
-        elevation: 4,
+        elevation: 3,
+        borderRadius: 8,
         display: "flex",
-        gap: 20,
+        gap: 10,
         marginBottom: 10,
+        borderColor: "transparent",
+        borderWidth: 2,
     },
-
+    radio: {
+        height: 20,
+        width: 20,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: "#999",
+    },
+    radioSelected: {
+        backgroundColor: "#FD8721",
+        borderColor: "#FD8721",
+    },
     button: {
         padding: 10,
         marginTop: 10,
-        backgroundColor: "#FD8721"
+        backgroundColor: "#FD8721",
+        borderRadius: 8,
     },
-
-
-
-}
-)
-
-
+});

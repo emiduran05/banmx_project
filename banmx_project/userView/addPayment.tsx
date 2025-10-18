@@ -33,7 +33,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { db } from "../firebaseConn/config";
 
-export default function addPayment({ navigation }: any) {
+export default function addPayment({ navigation, route }: any) {
     const user = auth.currentUser;
     const [titular, setTitular] = useState("");
     const [card, setCard] = useState("");
@@ -77,6 +77,8 @@ export default function addPayment({ navigation }: any) {
     }
 
 
+    console.log(route.params.data )
+
     async function publish(titular : any, card : any, expDate : any, uid : any){
         try {
             const docRef = await addDoc(collection(db, "payment_methods"),{
@@ -102,9 +104,9 @@ export default function addPayment({ navigation }: any) {
         }).start();
 
         getPayInfo(user.uid);
-
     }, [menu]);
 
+        console.log()
 
 
     return (
@@ -182,8 +184,14 @@ export default function addPayment({ navigation }: any) {
                         if(titular == "" || card == "" || expDate == ""){
                             alert("llena todos los campos")
                         }else{
-                            publish(titular,card,expDate, user.uid);
-                            navigation.navigate("payMethods")
+
+                            if(route.params.origin == "details"){
+                                publish(titular,card,expDate,user.uid)
+                                navigation.navigate("paymentDetails", {data: route.params.data});
+
+                            }else{
+                                navigation.navigate("payMethods")
+                            }
                         }
                     }}
                 

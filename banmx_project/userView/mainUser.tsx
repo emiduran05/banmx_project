@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 8,
     backgroundColor: "#FD8721",
+    elevation: 4,
     color: "#fff",
     fontWeight: 600,
 
@@ -227,8 +228,9 @@ const styles = StyleSheet.create({
     margin: "auto",
     marginBottom: 20,
     color: "#fff",
+    elevation: 4,
     fontWeight: 600,
-    backgroundColor: "#FCBC15"
+    backgroundColor: "#FCBC30"
   },
 
   last_moves: {
