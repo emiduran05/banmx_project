@@ -65,7 +65,7 @@ return (
           <Text style={styles.sidebarItem}>Catálogo</Text>
         </Pressable>
 
-        <Pressable onPress={() => {navigation.navigate("")}}>
+        <Pressable onPress={() => {navigation.navigate("AboutUs")}}>
           <Text style={styles.sidebarItem}>Más de Banco de alimentos</Text>
         </Pressable>
 
