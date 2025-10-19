@@ -11,6 +11,7 @@ import {
 import {
     collection,
     getDocs,
+    addDoc,
     query,
     where,
 } from "firebase/firestore";
@@ -30,6 +31,34 @@ export default function PaymentDetails({ navigation, route }: any) {
     const si = route.params.data;
 
     // 🔹 Obtener métodos de pago
+
+    async function postDonation(donacion: number, cantidad: number, imagen: string, name: string, uid: string, card: string) {
+        const fechaPost = new Date();
+
+        const dia = fechaPost.getDate();          // Día (1–31)
+        const mes = fechaPost.getMonth() + 1;     // Mes (0–11, por eso sumamos 1)
+        const año = fechaPost.getFullYear();      // Año completo (ej. 2025)
+
+
+
+        try {
+            const docRef = await addDoc(collection(db, "donaciones"), {
+                fecha: `${dia}/${mes}/${año}`,
+                cantidad: cantidad,
+                donacion: donacion,
+                imagen: imagen,
+                name: name,
+                uid: uid,
+                card: "**" + card.slice(-4),
+                evidenciaIMG: "",
+
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+
     async function getPayInfo(userUid: string) {
         const payInfos = collection(db, "payment_methods");
         const payInfosQuery = query(payInfos, where("uid", "==", userUid));
@@ -162,7 +191,6 @@ export default function PaymentDetails({ navigation, route }: any) {
                     </Text>
                 </Pressable>
 
-                {/* 💰 Botón para proceder al pago */}
                 <Pressable
                     style={[
                         styles.button,
@@ -171,17 +199,32 @@ export default function PaymentDetails({ navigation, route }: any) {
                         },
                     ]}
                     disabled={!selectedMethod}
-                    onPress={() => {
+                    onPress={async () => {
                         if (!selectedMethod) {
                             alert("Selecciona un método de pago primero");
                             return;
                         }
 
                         const method = data.find((m: any) => m.id === selectedMethod);
-                        console.log("Procediendo al pago con:", method);
 
-                        // Aquí puedes implementar tu lógica de pago o redirección:
-                        // navigation.navigate("PaymentProcessing", { method, products: si });
+                        try {
+                            for (const item of si) {
+                                await postDonation(
+                                    item.price * item.quantity, 
+                                    item.quantity,              
+                                    item.image,                 
+                                    item.title,                 
+                                    user.uid,                  
+                                    method.card_number          
+                                );
+                            }
+
+                            alert("¡Donaciones registradas correctamente!");
+                            navigation.navigate("Donaciones"); // o a donde quieras redirigir
+                        } catch (error) {
+                            console.error("Error al registrar las donaciones:", error);
+                            alert("Hubo un error al registrar las donaciones");
+                        }
                     }}
                 >
                     <Text style={{ textAlign: "center", color: "#fff" }}>Donar</Text>

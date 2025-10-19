@@ -58,11 +58,11 @@ return (
         </View>
 
         <Pressable onPress={() => navigation.navigate("mainUser")}>
-          <Text style={styles.sidebarItem}>Perfil</Text>
+          <Text style={styles.sidebarItem}>Inicio</Text>
         </Pressable>
 
         <Pressable onPress={() => navigation.navigate("Catalogo")}>
-          <Text style={styles.sidebarItem}>Catálogo</Text>
+          <Text style={styles.sidebarItem}>Catálogo de donaciones</Text>
         </Pressable>
 
         <Pressable onPress={() => {navigation.navigate("AboutUs")}}>

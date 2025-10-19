@@ -42,9 +42,12 @@ export default function AboutUs({ navigation }: any) {
       
   
     return (
-    <View style={{ flex: 1 }}>
-      <Header onMenuPress={toggleMenu} />
+      <SafeAreaView>
       <SidebarUser navigation={navigation} slideAnim={slideAnim} toggleMenu={toggleMenu} />
+
+        
+    <View >
+      <Header onMenuPress={toggleMenu} />
 
       <ScrollView contentContainerStyle={styles.main}>
         <Text style={styles.title}>¿Qué es Banco de Alimentos?</Text>
@@ -83,13 +86,14 @@ export default function AboutUs({ navigation }: any) {
         />
       </ScrollView>
     </View>
+      </SafeAreaView>
+
   );
 
 }
 
 const styles = StyleSheet.create({
     main: {
-        flex: 1,
         padding: 30,
     },
     title: {

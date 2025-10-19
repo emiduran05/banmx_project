@@ -33,8 +33,8 @@ import { auth } from "../firebaseConn/config";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Donaciones({ navigation }: any) {
-  const user = auth.currentUser ? auth.currentUser : {uid: "invitado"};
-  const [loading, setLoading]  = useState(true);
+  const user = auth.currentUser ? auth.currentUser : { uid: "invitado" };
+  const [loading, setLoading] = useState(true);
   const [menu, setMenu] = useState(false);
   const [name, setName] = useState("");
   const [data, setData] = useState([]);
@@ -67,38 +67,39 @@ export default function Donaciones({ navigation }: any) {
 
 
   return (
-  <SafeAreaView style={{ flex: 1 }}>
-    <Header onMenuPress={toggleMenu} />
-    <SidebarUser
-      navigation={navigation}
-      slideAnim={slideAnim}
-      toggleMenu={toggleMenu}
-    />
+    <SafeAreaView style={{ flex: 1 }}>
+      <Header onMenuPress={toggleMenu} />
+      <SidebarUser
+        navigation={navigation}
+        slideAnim={slideAnim}
+        toggleMenu={toggleMenu}
+      />
 
-    <View style={styles.main}>
-      <Text
-        style={{
-          textAlign: "center",
-          fontSize: 18,
-          fontWeight: "600",
-          marginBottom: 10,
-        }}
-      >
-        Historial de donaciones
-      </Text>
+      <View style={styles.main}>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 18,
+            fontWeight: "600",
+            marginBottom: 10,
+          }}
+        >
+          Historial de donaciones
+        </Text>
 
-       {loading ? (
-            <Image source={{uri: "https://cdn.pixabay.com/animation/2023/08/11/21/18/21-18-05-265_512.gif"}} style={{height: 70, width: 70, margin: "auto"}} />
-          ) : data.length === 0 ? (
-            <Text style={{ textAlign: "center", marginTop: 10 }}>
-              Aún no hay donaciones...
-            </Text>
-          ) : (
-            <FlatList
-              data={data}
-              keyExtractor={(_, i) => i.toString()}
-              contentContainerStyle={styles.main}
-              renderItem={({ item }) => (
+        {loading ? (
+          <Image source={{ uri: "https://cdn.pixabay.com/animation/2023/08/11/21/18/21-18-05-265_512.gif" }} style={{ height: 70, width: 70, margin: "auto" }} />
+        ) : data.length === 0 ? (
+          <Text style={{ textAlign: "center", marginTop: 10 }}>
+            Aún no hay donaciones...
+          </Text>
+        ) : (
+          <FlatList
+            data={data}
+            keyExtractor={(_, i) => i.toString()}
+            contentContainerStyle={styles.main}
+            renderItem={({ item }) => (
+              <View >
                 <View style={styles.last_moves}>
                   <Image
                     source={{
@@ -108,28 +109,51 @@ export default function Donaciones({ navigation }: any) {
                     }}
                     style={{ height: 50, width: 50, borderRadius: 5 }}
                   />
-      
+
                   <View>
                     <Text style={styles.bold}>{item.name || "Bolsa de frijoles"}</Text>
                     <Text>Cantidad: {item.cantidad || 2}</Text>
                   </View>
-      
+
                   <View>
                     <Text style={styles.bold}>Donación:</Text>
                     <Text>${item.donacion || 299} mxn</Text>
                   </View>
-      
+
                   <View>
                     <Text style={styles.bold}>Fecha:</Text>
                     <Text>{item.fecha || "11/11/2025"}</Text>
                   </View>
+
                 </View>
-              )}
-            />
-          )}
-    </View>
-  </SafeAreaView>
-);
+
+                <View style={{backgroundColor: "#fff", padding: 5, marginBottom: 10,}}>
+                  <Text>Pagado con: {item.card}</Text>
+                </View>
+                
+                {item.evidenciaIMG != "" ? (
+                  <View style={{display: "flex", gap: 20,}}>
+                    <Text style={{textAlign: "center"}}>!Muchas Gracias por la donación! atte: banco de alimentos</Text>
+                    <Image 
+                    source={{uri: item.evidenciaIMG}}
+                    style={{height: 100, width: 100, margin: "auto", marginBottom: 10}}
+                  
+                  />
+                  </View>
+                  ):("")
+                }
+                
+
+
+              </View>
+
+
+            )}
+          />
+        )}
+      </View>
+    </SafeAreaView>
+  );
 
 }
 
@@ -194,6 +218,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10,
     backgroundColor: "#fff",
+    elevation: 4,
     borderBottomWidth: 0.5,
     borderBottomColor: "#000"
 

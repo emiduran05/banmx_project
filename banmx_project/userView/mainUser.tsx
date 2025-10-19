@@ -115,8 +115,11 @@ export default function MainUser({ navigation }: any) {
       <Text style={styles.button}>Métodos de pago:</Text>
     </Pressable>
 
-    <Pressable>
-      <Text style={styles.button}>Editar perfil:</Text>
+    <Pressable
+      onPress={() => {navigation.navigate("profile")}}
+    
+    >
+      <Text style={styles.button}>Mi perfil:</Text>
     </Pressable>
 
     <Text style={styles.title}>Últimos movimientos:</Text>
