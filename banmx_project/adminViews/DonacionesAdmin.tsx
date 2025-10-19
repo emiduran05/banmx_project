@@ -111,7 +111,7 @@ export default function ListaCompras({ navigation }: any) {
                                         {item.name}
                                     </Text>
                                     <Text style={styles.detail}>
-                                        💰 ${item.donacion} MXN
+                                        ${item.donacion} MXN
                                     </Text>
                                     <Text style={styles.detail}>
                                         Fecha: {item.fecha}

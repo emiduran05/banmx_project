@@ -15,7 +15,6 @@ import {
 
 } from 'firebase/firestore';
 import Header from "../components/header";
-import Sidebar from "../components/SideBar";
 import { useState, useEffect, useRef } from "react";
 import { auth } from "../firebaseConn/config";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,6 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { db } from "../firebaseConn/config";
 import { useNavigation } from "@react-navigation/native";
+import Sidebar from "../components/Sidebar";
 
 export default function Blog({ navigation }: any) {
     const user = auth.currentUser;

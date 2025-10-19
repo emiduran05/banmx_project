@@ -98,25 +98,43 @@ export default function BlogDetail({ route, navigation }: any) {
     );
   }
 
+  console.log("post:", post);
+
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Header onMenuPress={toggleMenu} />
-      <Sidebar navigation={navigation} slideAnim={slideAnim} toggleMenu={toggleMenu} />
-      
-      <ScrollView contentContainerStyle={styles.container}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Text style={styles.backTxt}>← Volver</Text>
-        </Pressable>
-        
-        {post.imagen ? (
-          <Image source={{ uri: post.imagen }} style={styles.cover} />
-        ) : null}
-        <Text style={styles.title}>{post.titulo || "Publicación"}</Text>
-        {post.fecha ? <Text style={styles.date}>{post.fecha }</Text> : null}
+  <SafeAreaView style={{ flex: 1 }}>
+    <Header onMenuPress={toggleMenu} />
+    <Sidebar navigation={navigation} slideAnim={slideAnim} toggleMenu={toggleMenu} />
+
+    <ScrollView contentContainerStyle={styles.container}>
+      <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <Text style={styles.backTxt}>← Volver</Text>
+      </Pressable>
+
+      {post.imagen ? (
+        <Image source={{ uri: post.imagen }} style={styles.cover} />
+      ) : null}
+
+      <Text style={styles.title}>{post.titulo || "Publicación"}</Text>
+
+      {post.fecha ? <Text style={styles.date}>{post.fecha}</Text> : null}
+
+      {/* Render seguro del cuerpo */}
+      {typeof post.texto === "string" ? (
         <Text style={styles.body}>{post.texto || "Sin contenido"}</Text>
-      </ScrollView>
-    </SafeAreaView>
-  );
+      ) : Array.isArray(post.texto?.blocks) ? (
+        post.texto.blocks.map((block: any, i: number) => (
+          <Text key={i} style={styles.body}>
+            {block.data?.text || ""}
+          </Text>
+        ))
+      ) : (
+        <Text style={styles.body}>Sin contenido</Text>
+      )}
+    </ScrollView>
+  </SafeAreaView>
+);
+
 }
 
 const styles = StyleSheet.create({
