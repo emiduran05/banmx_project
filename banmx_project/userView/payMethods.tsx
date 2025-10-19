@@ -119,7 +119,7 @@ export default function PayMethods({ navigation }: any) {
     </View>
 
     <Pressable style={styles.floatingButtonText}
-        onPress={() => {navigation.navigate("addPayment")}}
+        onPress={() => {navigation.navigate("addPayment", {origin: "payments"})}}
     >
         <Text style={{color: "#fff"}}>+ Añadir método de pago</Text>
 

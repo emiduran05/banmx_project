@@ -6,6 +6,7 @@ import {
   View,
   Image,
   Pressable,
+  ActivityIndicator,
   TextInput,
   Button,
   FlatList,
@@ -115,14 +116,17 @@ export default function MainUser({ navigation }: any) {
       <Text style={styles.button}>Métodos de pago:</Text>
     </Pressable>
 
-    <Pressable>
-      <Text style={styles.button}>Editar perfil:</Text>
+    <Pressable
+      onPress={() => {navigation.navigate("profile")}}
+    
+    >
+      <Text style={styles.button}>Mi perfil:</Text>
     </Pressable>
 
     <Text style={styles.title}>Últimos movimientos:</Text>
 
     {loading ? (
-      <Image source={{uri: "https://cdn.pixabay.com/animation/2023/08/11/21/18/21-18-05-265_512.gif"}} style={{height: 70, width: 70, margin: "auto"}} />
+      <ActivityIndicator size="large" color="#FD8721" />
     ) : data.length === 0 ? (
       <Text style={{ textAlign: "center", marginTop: 10 }}>
         Aún no hay donaciones...
@@ -199,6 +203,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 8,
     backgroundColor: "#FD8721",
+    elevation: 4,
     color: "#fff",
     fontWeight: 600,
 
@@ -227,8 +232,9 @@ const styles = StyleSheet.create({
     margin: "auto",
     marginBottom: 20,
     color: "#fff",
+    elevation: 4,
     fontWeight: 600,
-    backgroundColor: "#FCBC15"
+    backgroundColor: "#FCBC30"
   },
 
   last_moves: {

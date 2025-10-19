@@ -58,20 +58,24 @@ return (
         </View>
 
         <Pressable onPress={() => navigation.navigate("mainUser")}>
-          <Text style={styles.sidebarItem}>Perfil</Text>
+          <Text style={styles.sidebarItem}>Inicio</Text>
         </Pressable>
 
         <Pressable onPress={() => navigation.navigate("Catalogo")}>
-          <Text style={styles.sidebarItem}>Catálogo</Text>
+          <Text style={styles.sidebarItem}>Catálogo de donaciones</Text>
         </Pressable>
 
-        <Pressable onPress={() => {navigation.navigate("")}}>
+        <Pressable onPress={() => {navigation.navigate("AboutUs")}}>
           <Text style={styles.sidebarItem}>Más de Banco de alimentos</Text>
         </Pressable>
 
         <Pressable onPress={() => {navigation.navigate("Donaciones")}}>
           <Text style={styles.sidebarItem}>Historial de donaciones</Text>
         </Pressable>
+        <Pressable onPress={() => {navigation.navigate("Blog")}}>
+          <Text style={styles.sidebarItem}>Blog</Text>
+        </Pressable>
+
       </SafeAreaView>
     </Animated.View>
 

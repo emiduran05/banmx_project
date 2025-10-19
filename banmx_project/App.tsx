@@ -15,6 +15,13 @@ import addPayment from './userView/addPayment';
 import PaymentDetails from './userView/paymentDetails';
 import AdminBlog from './adminViews/AdminBlog';
 import AddBlog from './adminViews/AddBlog';
+import Blog from './userView/Blog';
+import BlogDetail from './userView/BlogDetail';
+import AboutUs from './userView/aboutUs';
+import Profile from './userView/profile';
+import DonacionesAdmin from './adminViews/DonacionesAdmin';
+import EvidenciaScreen from './adminViews/EvidenciaScreen';
+
 const Stack = createNativeStackNavigator();
 
 // Tipado de rutas
@@ -87,6 +94,13 @@ export default function App() {
         <Stack.Screen name="paymentDetails" component={PaymentDetails} />
         <Stack.Screen name="adminBlog" component={AdminBlog} />
         <Stack.Screen name="addBlog" component={AddBlog} />
+        <Stack.Screen name="Blog" component={Blog} />
+        <Stack.Screen name="BlogDetail" component={BlogDetail} />
+        <Stack.Screen name="AboutUs" component={AboutUs} />
+        <Stack.Screen name="profile" component={Profile}/>
+        <Stack.Screen name="donacionesAdmin" component={DonacionesAdmin} />
+        <Stack.Screen name="EvidenciaScreen" component={EvidenciaScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
