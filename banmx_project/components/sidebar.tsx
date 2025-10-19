@@ -65,8 +65,16 @@ return (
           <Text style={styles.sidebarItem}>Información de administrador</Text>
         </Pressable>
 
-        <Pressable onPress={toggleMenu}>
-          <Text style={styles.sidebarItem}>Historial de ventas</Text>
+        <Pressable onPress={() => navigation.navigate("donacionesAdmin")}>
+          <Text style={styles.sidebarItem}>Mi lista de compras</Text>
+        </Pressable>
+
+        <Pressable onPress={
+          () => {
+            navigation.navigate("EvidenciaScreen")
+          }
+        }>
+          <Text style={styles.sidebarItem}>Historial de donaciones</Text>
         </Pressable>
 
         <Pressable onPress={toggleMenu}>
