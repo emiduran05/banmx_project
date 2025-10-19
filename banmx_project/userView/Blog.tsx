@@ -5,22 +5,12 @@ import {
     View,
     Image,
     Pressable,
-    TextInput,
-    Button,
     FlatList,
-    SafeAreaViewBase,
     Animated,
-    ScrollView
 } from "react-native";
 import {
-    getFirestore,
     collection,
-    addDoc,
     getDocs,
-    query,
-    where,
-    onSnapshot,
-    QuerySnapshot
 
 } from 'firebase/firestore';
 import Header from "../components/header";
@@ -50,6 +40,7 @@ export default function Blog({ navigation }: any) {
                 ...doc.data(),
             }));
             setPosts(dataArray);
+            
     };
 
   useEffect(() => {
@@ -75,30 +66,35 @@ export default function Blog({ navigation }: any) {
     
                     <FlatList
                         style={{ flex: 1, paddingBottom: 30 }}
-                        contentContainerStyle={{ paddingBottom: 120 }}
+                        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 120 }}
                         data={posts}
                         keyExtractor={item => item.id}
-                        contentContainerStyle={{ padding: 16, gap: 12 }}
                         renderItem={({ item }) => (
                             <Pressable
-                                onPress={() => nav.navigate("BlogDetail", { id: item.id })}
+                                onPress={() => nav.navigate("BlogDetail", { id: item.id})}
                                 style={({ pressed }) => [styles.card, pressed && { opacity: 0.6 }]}
                             >
                                 <View style={styles.user_blog}>
-                                    <Image style={{ width: 70, height: 70 }} source={{ uri: item.image }} />
-    
+                                    {item.imagen ? (
+                                        <Image style={{ width: 70, height: 70, borderRadius: 8 }} source={{ uri: item.imagen }} />
+                                    ) : null}
+
                                     <View style={{ gap: 10, justifyContent: "space-around", flex: 1 }}>
                                         <Text style={{ fontSize: 16, fontWeight: "700" }} numberOfLines={1}>
-                                            {item.title || "Publicación"}
+                                            {item.titulo || "Publicación"}
                                         </Text>
                                         <Text style={{ fontSize: 13, color: "#444" }} numberOfLines={2}>
-                                            {item.excerpt || "Toca para leer más…"}
+                                            {item.texto || "Toca para leer más…"}
                                         </Text>
+                                        {item.fecha ? (
+                                            <Text style={{ fontSize: 12, color: "#666" }} numberOfLines={1}>
+                                                {item.fecha}
+                                            </Text>
+                                        ) : null}
                                     </View>
                                 </View>
                             </Pressable>
                         )}
-                        ListEmptyComponent={<Text style={{ textAlign: "center" }}>No hay publicaciones aún…</Text>}
                     />
                 </View>
             </SafeAreaView>
