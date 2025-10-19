@@ -1,0 +1,147 @@
+import React, { useState } from "react";
+import { View, Button, Image, Text, ActivityIndicator, TextInput, Pressable } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { collection, getFirestore, addDoc, serverTimestamp } from "firebase/firestore";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
+import { db } from "../firebaseConn/config";
+
+export default function AddBlog({navigation}: any) {
+  const [image, setImage] = useState(null);  
+  const [url, setUrl] = useState(null);   
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadImage = async () => {
+
+
+  if (!image) return;
+  setLoading(true);
+
+
+  try {
+    const data = new FormData();
+    data.append("file", {
+      uri: image,
+      type: "image/jpeg",
+      name: "photo.jpg",
+    });
+    data.append("upload_preset", "ml_default"); 
+
+    const res = await fetch("https://api.cloudinary.com/v1_1/dzra5elov/image/upload", {
+      method: "POST",
+      body: data,
+    });
+
+    const json = await res.json();
+    console.log("Respuesta completa de Cloudinary:", json); 
+
+    if (json.secure_url) {
+      setUrl(json.secure_url);
+      setBlog(title, text, json.secure_url);
+      setLoading(false);
+      navigation.navigate("mainAdmin", ({data: null, name: null}))
+      console.log("Imagen subida a Cloudinary:", json.secure_url);
+    } else {
+      console.error("No se recibió secure_url. Revisa el preset y la imagen.");
+    }
+  } catch (error) {
+    console.error("Error al subir imagen:", error);
+  } finally {
+    {/**/}
+  }
+
+  
+
+};
+
+
+async function setBlog(Title : any, Text : any, Image : any){
+        try {
+            const docRef = await addDoc(collection(db, "blog"),{
+                imagen: Image,
+                texto: Text,
+                titulo: Title,
+                fecha: new Date().toLocaleDateString('es-MX'),
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+  const saveBlog = async () => {
+    if (!title || !text || !url) {
+      alert("Llena todos los campos y sube una imagen");
+      return;
+    }
+
+    console.log("Blog listo para guardar:", { title, text, url });
+  };
+
+  return (
+    <View style={{ padding: 30, flex: 1, justifyContent: "center", gap: 10, }}>
+      <View style={{position: "absolute", top: 60, left: 30, }}>
+        <Pressable style={{display: "flex", flexDirection: "row", gap: 10}} onPress={() => {
+          navigation.goBack()
+
+        }}>
+
+          <FontAwesome5 name="arrow-left" size={24} color="black" />
+        <Text style={{fontSize: 18, fontWeight: 600}}>Regresar</Text>
+      
+        </Pressable>
+        </View>
+
+      <Text style={{textAlign: "center", fontWeight: 600}}>Nuevo Blog:</Text>
+      <Text>Titulo:</Text>  
+      <TextInput
+        placeholder="Titulo de del blog"
+        value={title}
+        onChangeText={setTitle}
+        style={{ borderWidth: 1, borderColor: "#FD8721", marginBottom: 10, padding: 8 }}
+      />
+
+      <Text>Texto:</Text>
+      <TextInput
+        placeholder="Texto del blog"
+        value={text}
+        onChangeText={setText}
+        style={{ borderWidth: 1, borderColor: "#FD8721", marginBottom: 10, padding: 8 }}
+      />
+
+      <Button title="Seleccionar imagen" onPress={pickImage} disabled={loading} />
+      {image && (
+        <Image source={{ uri: image }} style={{ width: 200, height: 200, marginVertical: 10 }} />
+      )}
+
+      <Pressable onPress={() => {
+
+        if(!title || !text || !image){
+            alert("llena todos los campos")
+        }else{
+            uploadImage()
+
+        }
+        
+        }} disabled={loading}>
+        <Text style={{textAlign: "center", padding: 8, backgroundColor: "#FD8721", color: "#fff"}}>Publicar</Text>
+      </Pressable>
+      {loading && <ActivityIndicator size="small" color="#000" style={{ marginTop: 10 }} />}
+
+    </View>
+  );
+}

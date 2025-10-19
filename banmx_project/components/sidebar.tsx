@@ -69,7 +69,7 @@ return (
           <Text style={styles.sidebarItem}>Historial de ventas</Text>
         </Pressable>
 
-        <Pressable onPress={toggleMenu}>
+        <Pressable onPress={() => navigation.navigate("adminBlog")}>
           <Text style={styles.sidebarItem}>Blog</Text>
         </Pressable>
       </SafeAreaView>
