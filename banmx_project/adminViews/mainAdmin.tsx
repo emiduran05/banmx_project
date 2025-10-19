@@ -94,6 +94,11 @@ export default function MainAdmin({ navigation }: any) {
                         <Text style={styles.sidebarItem}>Información de administrador</Text>
                     </Pressable>
 
+                    
+                            <Pressable onPress={() => navigation.navigate("donacionesAdmin")}>
+                              <Text style={styles.sidebarItem}>Mi lista de compras</Text>
+                            </Pressable>
+
                     <Pressable onPress={
                         () => {
                             navigation.navigate("EvidenciaScreen");
@@ -105,6 +110,8 @@ export default function MainAdmin({ navigation }: any) {
                     <Pressable onPress={toggleMenu}>
                         <Text style={styles.sidebarItem}>Blog</Text>
                     </Pressable>
+
+                    
                 </SafeAreaView>
             </Animated.View>
 

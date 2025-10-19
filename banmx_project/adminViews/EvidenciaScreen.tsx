@@ -9,8 +9,9 @@ import {
     Switch,
     Pressable,
     Alert,
+    ActivityIndicator
 } from "react-native";
-import { getDocs, collection, doc, updateDoc } from "firebase/firestore";
+import { getDocs, collection, doc, updateDoc, query,where } from "firebase/firestore";
 import Header from "../components/header";
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "../firebaseConn/config";
@@ -22,6 +23,7 @@ export default function DonacionesAdmin({ navigation }: any) {
     const user = auth.currentUser;
     const [menu, setMenu] = useState(false);
     const [data, setData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any[]>([]);
     const slideAnim = useRef(new Animated.Value(-300)).current;
     const toggleMenu = () => setMenu(!menu);
@@ -31,14 +33,24 @@ export default function DonacionesAdmin({ navigation }: any) {
     const UPLOAD_PRESET = "ml_default";
 
     const getdata = async () => {
+    try {
         const catalogue = collection(db, "donaciones");
-        const querySnapshot = await getDocs(catalogue);
+        // 🔹 Solo obtener los que ya están comprados
+        const q = query(catalogue, where("comprado", "==", true));
+        const querySnapshot = await getDocs(q);
+
         const dataArray = querySnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
         }));
+
         setData(dataArray);
-    };
+    } catch (error) {
+        console.error("Error al obtener los productos comprados:", error);
+    }
+            setLoading(false)
+
+};
 
     useEffect(() => {
         Animated.timing(slideAnim, {
@@ -114,6 +126,7 @@ export default function DonacionesAdmin({ navigation }: any) {
                 Alert.alert("Error", "Ocurrió un error al subir la evidencia.");
             }
         }
+
     };
 
     return (
@@ -126,8 +139,9 @@ export default function DonacionesAdmin({ navigation }: any) {
             />
             <View style={styles.main}>
                 <Text style={styles.title}>Donaciones</Text>
-
-                <FlatList
+                
+                {loading ? (<ActivityIndicator size="large" color="#FD8721" />) : data.length == 0 ? (<Text style={{textAlign: "center"}}>No hay productos listos para tomar evidencia</Text>) : (
+                    <FlatList
                     style={{ flex: 1 }}
                     contentContainerStyle={{ paddingBottom: 120 }}
                     data={data}
@@ -166,6 +180,8 @@ export default function DonacionesAdmin({ navigation }: any) {
                         </View>
                     )}
                 />
+                )}
+                
 
                 {selected.length > 0 && (
                     <Pressable style={styles.button} onPress={handleTakeEvidence}>

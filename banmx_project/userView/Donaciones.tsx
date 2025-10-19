@@ -9,7 +9,9 @@ import {
   TextInput,
   Button,
   FlatList,
+  ActivityIndicator,
   SafeAreaViewBase,
+  ScrollView,
   Animated,
 } from "react-native";
 
@@ -88,7 +90,7 @@ export default function Donaciones({ navigation }: any) {
         </Text>
 
         {loading ? (
-          <Image source={{ uri: "https://cdn.pixabay.com/animation/2023/08/11/21/18/21-18-05-265_512.gif" }} style={{ height: 70, width: 70, margin: "auto" }} />
+                    <ActivityIndicator size="large" color="#FD8721" />
         ) : data.length === 0 ? (
           <Text style={{ textAlign: "center", marginTop: 10 }}>
             Aún no hay donaciones...
@@ -99,7 +101,8 @@ export default function Donaciones({ navigation }: any) {
             keyExtractor={(_, i) => i.toString()}
             contentContainerStyle={styles.main}
             renderItem={({ item }) => (
-              <View >
+
+              <ScrollView>
                 <View style={styles.last_moves}>
                   <Image
                     source={{
@@ -145,7 +148,7 @@ export default function Donaciones({ navigation }: any) {
                 
 
 
-              </View>
+              </ScrollView>
 
 
             )}
@@ -161,7 +164,7 @@ export default function Donaciones({ navigation }: any) {
 const styles = StyleSheet.create({
 
   main: {
-    flex: 1,
+    overflow: "scroll",
     padding: 10,
   },
 
