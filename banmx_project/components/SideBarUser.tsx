@@ -72,6 +72,10 @@ return (
         <Pressable onPress={() => {navigation.navigate("Donaciones")}}>
           <Text style={styles.sidebarItem}>Historial de donaciones</Text>
         </Pressable>
+        <Pressable onPress={() => {navigation.navigate("Blog")}}>
+          <Text style={styles.sidebarItem}>Blog</Text>
+        </Pressable>
+
       </SafeAreaView>
     </Animated.View>
 
