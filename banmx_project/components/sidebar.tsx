@@ -77,7 +77,7 @@ return (
           <Text style={styles.sidebarItem}>Historial de donaciones</Text>
         </Pressable>
 
-        <Pressable onPress={toggleMenu}>
+        <Pressable onPress={() => navigation.navigate("adminBlog")}>
           <Text style={styles.sidebarItem}>Blog</Text>
         </Pressable>
       </SafeAreaView>
