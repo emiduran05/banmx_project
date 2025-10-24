@@ -1,17 +1,17 @@
-import { StyleSheet, Text, View, Image, Pressable, FlatList, Animated } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, FlatList, Animated, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState, useRef } from 'react';
 import { db } from '../firebaseConn/config';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import Header from '../components/header';
 import { auth } from '../firebaseConn/config';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function MainAdmin({ navigation }: any) {
     const user = auth.currentUser;
     const [menu, setMenu] = useState(false);
     const slideAnim = useRef(new Animated.Value(-300)).current;
-
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<any[]>([]);
 
     const toggleMenu = () => {
         setMenu(!menu);
@@ -27,11 +27,34 @@ export default function MainAdmin({ navigation }: any) {
         setData(dataArray);
     };
 
+    const deleteProduct = async (id: string, title: string) => {
+        Alert.alert(
+            "Eliminar producto",
+            `¿Seguro que deseas eliminar "${title}"?`,
+            [
+                { text: "Cancelar", style: "cancel" },
+                {
+                    text: "Eliminar",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await deleteDoc(doc(db, "catalogue", id));
+                            setData(prev => prev.filter(item => item.id !== id));
+                            Alert.alert("Éxito", "Producto eliminado correctamente.");
+                        } catch (error) {
+                            Alert.alert("Error", "No se pudo eliminar el producto.");
+                            console.error(error);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     useEffect(() => {
         getdata();
     }, []);
 
-    // 🎬 Animación del menú
     useEffect(() => {
         Animated.timing(slideAnim, {
             toValue: menu ? 0 : -300,
@@ -55,22 +78,21 @@ export default function MainAdmin({ navigation }: any) {
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
                             <View style={styles.admin_products}>
-                                <Image style={{ width: 85, height: 85 }} source={{ uri: item.image }} />
-                                <View style={{ gap: 15, justifyContent: "center" }}>
+                                <Image style={{ width: 85, height: 85, borderRadius: 8 }} source={{ uri: item.image }} />
+                                <View style={{ flex: 1, justifyContent: "center" }}>
                                     <Text style={{ fontSize: 18, fontWeight: '600' }}>{item.title}</Text>
                                     <Text style={{ fontSize: 16 }}>Precio: ${item.price} MXN</Text>
                                 </View>
+
+                                <Pressable onPress={() => deleteProduct(item.id, item.title)}>
+                                    <Ionicons name="trash-outline" size={28} color="#FD5D5D" />
+                                </Pressable>
                             </View>
                         )}
                     />
                 </View>
-
-
             </View>
 
-           
-
-            {/* Menú lateral animado */}
             <Animated.View
                 style={[
                     styles.sidebar,
@@ -94,35 +116,26 @@ export default function MainAdmin({ navigation }: any) {
                         <Text style={styles.sidebarItem}>Información de administrador</Text>
                     </Pressable>
 
-                    
-                            <Pressable onPress={() => navigation.navigate("donacionesAdmin")}>
-                              <Text style={styles.sidebarItem}>Mi lista de compras</Text>
-                            </Pressable>
+                    <Pressable onPress={() => navigation.navigate("donacionesAdmin")}>
+                        <Text style={styles.sidebarItem}>Mi lista de compras</Text>
+                    </Pressable>
 
-                    <Pressable onPress={
-                        () => {
-                            navigation.navigate("EvidenciaScreen");
-                        }
-                    }>
+                    <Pressable onPress={() => navigation.navigate("EvidenciaScreen")}>
                         <Text style={styles.sidebarItem}>Historial de donaciones</Text>
                     </Pressable>
 
-                    <Pressable onPress={() => {navigation.navigate("adminBlog")}}>
+                    <Pressable onPress={() => navigation.navigate("adminBlog")}>
                         <Text style={styles.sidebarItem}>Blog</Text>
                     </Pressable>
-
-                    
                 </SafeAreaView>
             </Animated.View>
 
-
             <Pressable
-    onPress={() => navigation.navigate("addProduct")}
-    style={styles.floatingButton}
->
-    <Text style={styles.floatingButtonText}>+ Añadir Producto</Text>
-</Pressable>
-
+                onPress={() => navigation.navigate("addProduct")}
+                style={styles.floatingButton}
+            >
+                <Text style={styles.floatingButtonText}>+ Añadir Producto</Text>
+            </Pressable>
         </SafeAreaView>
     );
 }
@@ -149,6 +162,7 @@ const styles = StyleSheet.create({
     },
     admin_products: {
         flexDirection: "row",
+        alignItems: "center",
         gap: 20,
         backgroundColor: "#fff",
         elevation: 4,
@@ -160,41 +174,21 @@ const styles = StyleSheet.create({
         marginTop: 10,
         borderRadius: 10,
     },
-
     floatingButton: {
-    position: "absolute",
-    bottom: 90, // deja espacio sobre la barra de navegación
-    right: 20,
-    backgroundColor: "#FD8721",
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    elevation: 6,
-    zIndex: 1000,
-},
-floatingButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 16,
-},
-
-    addButton: {
         position: "absolute",
-        bottom: 70,
-        width: "100%",
-        right: 0,
-        left: 0,
-        alignItems: "center",
-    },
-    addButtonText: {
-        textAlign: "center",
-        padding: 10,
+        bottom: 90,
+        right: 20,
         backgroundColor: "#FD8721",
-        width: "90%",
-        borderRadius: 8,
+        borderRadius: 30,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        elevation: 6,
+        zIndex: 1000,
+    },
+    floatingButtonText: {
         color: "#fff",
+        fontWeight: "700",
         fontSize: 16,
-        fontWeight: '600',
     },
     sidebar: {
         position: "absolute",
@@ -208,7 +202,6 @@ floatingButtonText: {
         paddingTop: 40,
     },
     sidebarHeader: {
-        display: "flex",
         justifyContent: "center",
         alignItems: "center",
     },

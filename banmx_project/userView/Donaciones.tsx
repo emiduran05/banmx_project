@@ -1,4 +1,3 @@
-
 import SidebarUser from "../components/SideBarUser";
 import {
   StyleSheet,
@@ -6,56 +5,63 @@ import {
   View,
   Image,
   Pressable,
-  TextInput,
-  Button,
   FlatList,
   ActivityIndicator,
-  SafeAreaViewBase,
   ScrollView,
   Animated,
+  Linking,
 } from "react-native";
-
 
 import {
   getFirestore,
   collection,
-  addDoc,
   getDocs,
   query,
   where,
-  onSnapshot,
-  QuerySnapshot
-
-} from 'firebase/firestore';
+} from "firebase/firestore";
 import { db } from "../firebaseConn/config";
 import Header from "../components/header";
-import Sidebar from "../components/Sidebar";
 import { useState, useEffect, useRef } from "react";
 import { auth } from "../firebaseConn/config";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Donaciones({ navigation }: any) {
   const user = auth.currentUser ? auth.currentUser : { uid: "invitado" };
   const [loading, setLoading] = useState(true);
   const [menu, setMenu] = useState(false);
-  const [name, setName] = useState("");
   const [data, setData] = useState([]);
   const slideAnim = useRef(new Animated.Value(-300)).current;
   const toggleMenu = () => setMenu(!menu);
 
+  // 🔹 Obtener donaciones
   async function getDonations(userUid: string) {
     const donations = collection(db, "donaciones");
-    const donationsQuery = query(donations, where("uid", "==", userUid))
+    const donationsQuery = query(donations, where("uid", "==", userUid));
     const querySnapshot = await getDocs(donationsQuery);
-    const dataArray = querySnapshot.docs.map(doc => ({
+    const dataArray = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
     setData(dataArray);
     setLoading(false);
-
   }
 
+  // 🔹 Compartir en X (Twitter)
+  const compartirEnX = (item: any) => {
+    const mensaje = encodeURIComponent(
+      `🍎💚 ¡Mira mi donación al Banco de Alimentos!  
+Producto: ${item.name || "Donación"}  
+Monto: $${item.donacion || 0} MXN  
+¡Únete tú también a donar! 🙌`
+    );
+
+    const imagenURL = encodeURIComponent(item.evidenciaIMG || item.imagen);
+    const tweetURL = `https://twitter.com/intent/tweet?text=${mensaje}&url=${imagenURL}`;
+
+    Linking.openURL(tweetURL).catch((err) =>
+      console.error("Error abriendo X:", err)
+    );
+  };
 
   useEffect(() => {
     Animated.timing(slideAnim, {
@@ -64,9 +70,7 @@ export default function Donaciones({ navigation }: any) {
       useNativeDriver: true,
     }).start();
     getDonations(user.uid);
-
   }, [menu]);
-
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -90,7 +94,7 @@ export default function Donaciones({ navigation }: any) {
         </Text>
 
         {loading ? (
-                    <ActivityIndicator size="large" color="#FD8721" />
+          <ActivityIndicator size="large" color="#FD8721" />
         ) : data.length === 0 ? (
           <Text style={{ textAlign: "center", marginTop: 10 }}>
             Aún no hay donaciones...
@@ -101,7 +105,6 @@ export default function Donaciones({ navigation }: any) {
             keyExtractor={(_, i) => i.toString()}
             contentContainerStyle={styles.main}
             renderItem={({ item }) => (
-
               <ScrollView>
                 <View style={styles.last_moves}>
                   <Image
@@ -114,7 +117,9 @@ export default function Donaciones({ navigation }: any) {
                   />
 
                   <View>
-                    <Text style={styles.bold}>{item.name || "Bolsa de frijoles"}</Text>
+                    <Text style={styles.bold}>
+                      {item.name || "Bolsa de frijoles"}
+                    </Text>
                     <Text>Cantidad: {item.cantidad || 2}</Text>
                   </View>
 
@@ -127,94 +132,58 @@ export default function Donaciones({ navigation }: any) {
                     <Text style={styles.bold}>Fecha:</Text>
                     <Text>{item.fecha || "11/11/2025"}</Text>
                   </View>
-
                 </View>
 
-                <View style={{backgroundColor: "#fff", padding: 5, marginBottom: 10,}}>
+                <View
+                  style={{
+                    backgroundColor: "#fff",
+                    padding: 5,
+                    marginBottom: 10,
+                  }}
+                >
                   <Text>Pagado con: {item.card}</Text>
                 </View>
-                
+
                 {item.evidenciaIMG != "" ? (
-                  <View style={{display: "flex", gap: 20,}}>
-                    <Text style={{textAlign: "center"}}>!Muchas Gracias por la donación! atte: banco de alimentos</Text>
-                    <Image 
-                    source={{uri: item.evidenciaIMG}}
-                    style={{height: 100, width: 100, margin: "auto", marginBottom: 10}}
-                  
-                  />
+                  <View style={{ display: "flex", gap: 20 }}>
+                    <Text style={{ textAlign: "center" }}>
+                      ¡Muchas gracias por la donación! Att: Banco de Alimentos
+                    </Text>
+                    <Image
+                      source={{ uri: item.evidenciaIMG }}
+                      style={{
+                        height: 200,
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 10,
+                      }}
+                    />
+
+                    {/* 🔹 Botón para compartir en X */}
+                    <Pressable
+                      onPress={() => compartirEnX(item)}
+                      style={styles.xButton}
+                    >
+                      <Text style={styles.xText}>Compartir en X </Text>
+                    </Pressable>
                   </View>
-                  ):("")
-                }
-                
-
-
+                ) : (
+                  ""
+                )}
               </ScrollView>
-
-
             )}
           />
         )}
       </View>
     </SafeAreaView>
   );
-
 }
 
-
 const styles = StyleSheet.create({
-
   main: {
     overflow: "scroll",
     padding: 10,
   },
-
-  title: {
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: 600,
-  },
-
-  main_profile_view: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 20,
-
-  },
-
-  changePassContainer: {
-    display: "flex",
-    gap: 10,
-  },
-
-  changePass: {
-    textAlign: "center",
-    padding: 8,
-    backgroundColor: "#FD8721",
-    color: "#fff",
-    fontWeight: 600,
-
-  },
-
-  mainText: {
-    textAlign: "center",
-    fontWeight: 600,
-    fontSize: 18,
-    color: "#fff",
-  },
-
-  button: {
-    padding: 20,
-    textAlign: "center",
-    width: "50%",
-    margin: "auto",
-    marginBottom: 20,
-    color: "#fff",
-    fontWeight: 600,
-    backgroundColor: "#FCBC15"
-  },
-
   last_moves: {
     display: "flex",
     flexDirection: "row",
@@ -223,17 +192,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     elevation: 4,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#000"
-
+    borderBottomColor: "#000",
   },
-
   bold: {
-    fontWeight: 600,
+    fontWeight: "600",
   },
-
-  payment_info: {
+  xButton: {
+    backgroundColor: "#000",
     padding: 10,
-  }
-
-
-})
+    borderRadius: 8,
+    alignSelf: "center",
+    marginBottom: 10,
+  },
+  xText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+});
